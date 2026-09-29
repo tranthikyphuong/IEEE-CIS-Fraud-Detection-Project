@@ -1,77 +1,107 @@
 # Resampling and Interpretable Machine Learning for Financial Fraud Detection
 
-## Overview | Tổng quan
+A comparative study of resampling techniques for financial fraud detection, evaluating **three model families** — LightGBM, Feedforward Neural Network (FNN), and K-Means — under three imbalance-handling settings: **No Resampling, Random Over-Sampling (ROS), and SMOTE** on the full IEEE-CIS Fraud Detection dataset (590,540 transactions, 3.50% fraud rate).
 
-This project investigates the impact of resampling techniques on financial fraud detection using the **IEEE-CIS Fraud Detection dataset**.
+The study investigates whether resampling improves fraud detection performance and whether it changes the features that models rely on, beyond headline performance metrics. The evaluation uses a chronological 70/10/20 train/validation/test split, three random seeds, PR-AUC, F1, Recall, Precision, ROC-AUC, and SHAP-based feature importance analysis.
 
-Dự án nghiên cứu tác động của các phương pháp resampling đối với bài toán phát hiện gian lận tài chính trên **IEEE-CIS Fraud Detection dataset**.
-
-The study compares three resampling settings — **No Resampling, Random Over-Sampling (ROS), and SMOTE** — across three model families:
-
-Nghiên cứu so sánh ba thiết lập — **Không Resampling, Random Over-Sampling (ROS), và SMOTE** — trên ba nhóm mô hình:
-
-- **LightGBM**
-- **Feedforward Neural Network (FNN)**
-- **K-Means**
-
-The study focuses on two main questions:
-
-Nghiên cứu tập trung vào hai câu hỏi chính:
-
-- **RQ1:** Does resampling improve fraud detection performance across different models?
-- **RQ1:** Resampling có cải thiện hiệu quả phát hiện gian lận trên các mô hình khác nhau hay không?
-
-- **RQ2:** Does resampling change the features driving model predictions?
-- **RQ2:** Resampling có làm thay đổi các đặc trưng mà mô hình dựa vào để đưa ra dự đoán hay không?
+Built as a research project on financial fraud detection. Full methodology, experiments, and findings are documented in the accompanying research report.
 
 ---
 
-## Motivation | Động lực nghiên cứu
+## Problem
 
-Fraud detection is a highly imbalanced classification problem, where fraudulent transactions represent only a small proportion of all transactions.
+Financial fraud detection is a severely imbalanced classification problem. Only approximately **3.50%** of transactions in the IEEE-CIS dataset are fraudulent, making minority-class detection substantially more difficult than majority-class classification.
 
-Phát hiện gian lận là một bài toán phân loại mất cân bằng nghiêm trọng, trong đó các giao dịch gian lận chỉ chiếm một tỷ lệ nhỏ trong tổng số giao dịch.
+Accuracy alone can be misleading in this setting because a model can achieve high overall accuracy while failing to identify a meaningful proportion of fraudulent transactions. Therefore, this study focuses on **PR-AUC, F1-score, Recall, and Precision**, together with ROC-AUC and Accuracy.
 
-Previous studies have explored SMOTE and neural networks as approaches for handling class imbalance in credit card fraud detection.
-
-Các nghiên cứu trước đây đã sử dụng SMOTE kết hợp với mạng nơ-ron như một hướng tiếp cận để xử lý mất cân bằng trong phát hiện gian lận thẻ tín dụng.
-
-However, resampling does not necessarily improve performance for every model or dataset. This motivates a direct comparison of resampling strategies across different model families on the IEEE-CIS dataset.
-
-Tuy nhiên, resampling không nhất thiết cải thiện hiệu quả đối với mọi mô hình hoặc mọi bộ dữ liệu. Điều này tạo động lực cho việc so sánh trực tiếp các phương pháp resampling trên nhiều nhóm mô hình khác nhau trên bộ dữ liệu IEEE-CIS.
+Resampling techniques such as ROS and SMOTE are widely used to address class imbalance. However, their effectiveness may depend on the underlying model and feature representation. This study therefore examines not only whether resampling improves predictive performance, but also whether it changes the model's feature reliance.
 
 ---
 
-## Research Questions | Câu hỏi nghiên cứu
+## Research Questions
 
-### RQ1 — Resampling Effectiveness | Hiệu quả của Resampling
+**RQ1.** Does resampling improve fraud detection performance across different model families?
 
-**Does resampling improve fraud detection performance across different models?**
-
-**Resampling có cải thiện hiệu quả phát hiện gian lận trên các mô hình khác nhau hay không?**
-
-We compare:
-
-So sánh:
-
-`None` vs. `ROS` vs. `SMOTE`
-
-across:
-
-`LightGBM` vs. `FNN` vs. `K-Means`
+**RQ2.** Does resampling change the features driving model predictions, beyond headline performance metrics?
 
 ---
 
-### RQ2 — Feature Reliance | Mức độ phụ thuộc vào đặc trưng
+## Methodology
 
-**Does resampling change the features driving model predictions?**
+The study follows a chronological experimental pipeline designed to reduce temporal information leakage and ensure that resampling is applied only to the training data.
 
-**Resampling có làm thay đổi các đặc trưng mà mô hình dựa vào để đưa ra dự đoán hay không?**
+### Data Preprocessing
 
-SHAP-based feature importance is used to compare the model's feature reliance across resampling conditions.
+The IEEE-CIS transaction and identity datasets are merged using `TransactionID`.
 
-Phân tích mức độ quan trọng của đặc trưng bằng SHAP được sử dụng để so sánh sự phụ thuộc của mô hình vào các đặc trưng giữa các phương pháp resampling.
+The preprocessing pipeline includes:
 
----
+- Merging transaction and identity data
+- Removing duplicate records
+- Removing highly sparse features
+- Engineering temporal features
+- Engineering transaction-level features
+- Creating aggregation features
+- Encoding categorical variables
+- Train-only imputation and standardisation
 
-## Methodology | Phương pháp
+The final dataset contains **590,540 transactions**, with a fraud rate of approximately **3.50%**.
+
+### Data Splitting
+
+A chronological **70/10/20** split is used:
+
+- **Training:** 70%
+- **Validation:** 10%
+- **Testing:** 20%
+
+The data are ordered by `TransactionDT` before splitting to preserve the temporal structure of the dataset.
+
+Preprocessing statistics and aggregation features are fitted using the training data only.
+
+### Resampling
+
+Three training conditions are compared:
+
+- **None:** Original imbalanced training data
+- **ROS:** Random Over-Sampling
+- **SMOTE:** Synthetic Minority Over-sampling Technique
+
+ROS and SMOTE use a **10% minority-class sampling target** and are applied **only to the training set**.
+
+The validation and test sets remain untouched.
+
+### Model Families
+
+Three different model families are evaluated:
+
+#### LightGBM
+
+A gradient-boosted decision tree model for tabular fraud detection.
+
+#### Feedforward Neural Network
+
+A multilayer neural network with:
+
+- 256-unit hidden layer
+- 128-unit hidden layer
+- 64-unit hidden layer
+- Batch Normalization
+- Dropout
+- Adam optimisation
+- Early stopping based on validation PR-AUC
+
+#### K-Means
+
+MiniBatch K-Means is used as an unsupervised baseline. Cluster-level fraud rates are estimated from the training data with smoothing and used to generate fraud scores.
+
+### Experimental Design
+
+The main experiment evaluates:
+
+```text
+3 Resampling Methods
+        ×
+3 Model Families
+        ×
+3 Random Seeds
