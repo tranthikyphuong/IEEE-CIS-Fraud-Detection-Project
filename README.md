@@ -55,3 +55,9 @@ ROS preserved **8/10** top features (Jaccard = **0.818**), while SMOTE showed on
 ## Tech Stack
 
 Python · pandas · NumPy · scikit-learn · imbalanced-learn · LightGBM · PyTorch · SHAP · Matplotlib · Seaborn
+## How to Run
+The notebook is written for Kaggle Notebooks (free T4 GPU, dataset attached automatically) but runs in any environment with a CUDA-capable GPU. On Kaggle:
+
+Fork the IEEE-CIS Fraud Detection competition data into your workspace Upload the notebook and attach the dataset Settings, Accelerator, GPU T4 x2 Run all cells
+
+Locally: install requirements.txt, download the IEEE-CIS dataset from Kaggle, update the DATA_PATH variable in Step 2, then run. Full pipeline runtime is approximately 2.5 hours on a single T4 (most of it spent on GCN training).
