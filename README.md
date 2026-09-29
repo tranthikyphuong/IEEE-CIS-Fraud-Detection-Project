@@ -1,107 +1,57 @@
 # Resampling and Interpretable Machine Learning for Financial Fraud Detection
 
-A comparative study of resampling techniques for financial fraud detection, evaluating **three model families** — LightGBM, Feedforward Neural Network (FNN), and K-Means — under three imbalance-handling settings: **No Resampling, Random Over-Sampling (ROS), and SMOTE** on the full IEEE-CIS Fraud Detection dataset (590,540 transactions, 3.50% fraud rate).
+A comparative study of **None, ROS, and SMOTE** across three model families — **LightGBM, Feedforward Neural Network, and K-Means** — on the full IEEE-CIS Fraud Detection dataset (590,540 transactions, 3.50% fraud rate).
 
-The study investigates whether resampling improves fraud detection performance and whether it changes the features that models rely on, beyond headline performance metrics. The evaluation uses a chronological 70/10/20 train/validation/test split, three random seeds, PR-AUC, F1, Recall, Precision, ROC-AUC, and SHAP-based feature importance analysis.
-
-Built as a research project on financial fraud detection. Full methodology, experiments, and findings are documented in the accompanying research report.
-
----
+The study investigates whether resampling improves fraud detection performance and whether it changes model feature reliance. Evaluation uses a chronological **70/10/20 split**, three random seeds, PR-AUC, F1, Recall, Precision, ROC-AUC, and SHAP.
 
 ## Problem
 
-Financial fraud detection is a severely imbalanced classification problem. Only approximately **3.50%** of transactions in the IEEE-CIS dataset are fraudulent, making minority-class detection substantially more difficult than majority-class classification.
+Financial fraud detection is a highly imbalanced classification problem, with only 3.50% fraudulent transactions in the IEEE-CIS dataset. Accuracy alone can therefore be misleading.
 
-Accuracy alone can be misleading in this setting because a model can achieve high overall accuracy while failing to identify a meaningful proportion of fraudulent transactions. Therefore, this study focuses on **PR-AUC, F1-score, Recall, and Precision**, together with ROC-AUC and Accuracy.
-
-Resampling techniques such as ROS and SMOTE are widely used to address class imbalance. However, their effectiveness may depend on the underlying model and feature representation. This study therefore examines not only whether resampling improves predictive performance, but also whether it changes the model's feature reliance.
-
----
+This project evaluates whether resampling improves fraud detection and whether its impact depends on the model family.
 
 ## Research Questions
 
 **RQ1.** Does resampling improve fraud detection performance across different model families?
 
-**RQ2.** Does resampling change the features driving model predictions, beyond headline performance metrics?
-
----
+**RQ2.** Does resampling change the features driving model predictions?
 
 ## Methodology
 
-The study follows a chronological experimental pipeline designed to reduce temporal information leakage and ensure that resampling is applied only to the training data.
+**Preprocessing:** Merge transaction and identity data, remove duplicates and sparse features, and engineer temporal, transaction, categorical, and aggregation features.
 
-### Data Preprocessing
+**Splitting:** Chronological 70/10/20 train/validation/test split with train-only preprocessing.
 
-The IEEE-CIS transaction and identity datasets are merged using `TransactionID`.
+**Resampling:** None / ROS / SMOTE (10%), applied only to training data.
 
-The preprocessing pipeline includes:
+**Models:** LightGBM / Feedforward Neural Network / K-Means.
 
-- Merging transaction and identity data
-- Removing duplicate records
-- Removing highly sparse features
-- Engineering temporal features
-- Engineering transaction-level features
-- Creating aggregation features
-- Encoding categorical variables
-- Train-only imputation and standardisation
+**Experiments:** 3 random seeds for each configuration.
 
-The final dataset contains **590,540 transactions**, with a fraud rate of approximately **3.50%**.
+**Interpretability:** SHAP feature-importance analysis for LightGBM.
 
-### Data Splitting
+## Results
 
-A chronological **70/10/20** split is used:
+| Model | Resampler | PR-AUC | F1 | Recall | Precision | ROC-AUC |
+|---|---|---:|---:|---:|---:|---:|
+| LightGBM | None | 0.570 | 0.559 | 0.493 | 0.645 | 0.911 |
+| LightGBM | ROS | **0.575** | **0.563** | **0.511** | 0.626 | 0.911 |
+| LightGBM | SMOTE | 0.573 | 0.558 | 0.506 | 0.625 | **0.912** |
+| Neural Network | None | 0.415 | 0.425 | 0.391 | 0.467 | 0.854 |
+| Neural Network | ROS | 0.415 | 0.426 | 0.381 | 0.489 | 0.854 |
+| Neural Network | SMOTE | 0.418 | 0.429 | 0.397 | 0.474 | 0.844 |
+| K-Means | None | 0.297 | 0.323 | 0.276 | 0.403 | 0.790 |
+| K-Means | ROS | 0.298 | 0.335 | 0.274 | 0.445 | 0.791 |
+| K-Means | SMOTE | 0.302 | 0.347 | 0.280 | 0.463 | 0.786 |
 
-- **Training:** 70%
-- **Validation:** 10%
-- **Testing:** 20%
+## Key Findings
 
-The data are ordered by `TransactionDT` before splitting to preserve the temporal structure of the dataset.
+**RQ1 — Model choice mattered more than resampling.**  
+LightGBM achieved **0.570–0.575 PR-AUC**, compared with **0.415–0.418** for Neural Network and **0.297–0.302** for K-Means. ROS/SMOTE changed LightGBM PR-AUC by only **0.002–0.005**.
 
-Preprocessing statistics and aggregation features are fitted using the training data only.
+**RQ2 — Resampling can change feature reliance.**  
+ROS preserved **8/10** top features (Jaccard = **0.818**), while SMOTE showed only **0.250** Top-10 Jaccard similarity with the original model.
 
-### Resampling
+## Tech Stack
 
-Three training conditions are compared:
-
-- **None:** Original imbalanced training data
-- **ROS:** Random Over-Sampling
-- **SMOTE:** Synthetic Minority Over-sampling Technique
-
-ROS and SMOTE use a **10% minority-class sampling target** and are applied **only to the training set**.
-
-The validation and test sets remain untouched.
-
-### Model Families
-
-Three different model families are evaluated:
-
-#### LightGBM
-
-A gradient-boosted decision tree model for tabular fraud detection.
-
-#### Feedforward Neural Network
-
-A multilayer neural network with:
-
-- 256-unit hidden layer
-- 128-unit hidden layer
-- 64-unit hidden layer
-- Batch Normalization
-- Dropout
-- Adam optimisation
-- Early stopping based on validation PR-AUC
-
-#### K-Means
-
-MiniBatch K-Means is used as an unsupervised baseline. Cluster-level fraud rates are estimated from the training data with smoothing and used to generate fraud scores.
-
-### Experimental Design
-
-The main experiment evaluates:
-
-```text
-3 Resampling Methods
-        ×
-3 Model Families
-        ×
-3 Random Seeds
+Python · pandas · NumPy · scikit-learn · imbalanced-learn · LightGBM · PyTorch · SHAP · Matplotlib · Seaborn
