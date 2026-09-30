@@ -61,3 +61,6 @@ The notebook is written for Kaggle Notebooks (free T4 GPU, dataset attached auto
 Fork the IEEE-CIS Fraud Detection competition data into your workspace Upload the notebook and attach the dataset Settings, Accelerator, GPU T4 x2 Run all cells
 
 Locally: install requirements.txt, download the IEEE-CIS dataset from Kaggle, update the DATA_PATH variable in Step 2, then run. Full pipeline runtime is approximately 2.5 hours on a single T4 (most of it spent on GCN training).
+## References 
+**1. **  Baisholan, B., et al. (2025). A Systematic Review of Machine Learning in Credit Card Fraud Detection Under Original Class Imbalance. Computers, 14(10), 437.
+**2. ** Zhu, et al. (2024). Enhancing Credit Card Fraud Detection: A Neural Network and SMOTE Integrated Approach. arXiv:2402.17979.
