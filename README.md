@@ -30,31 +30,23 @@ This project evaluates whether resampling improves fraud detection and whether i
 
 **Interpretability:** SHAP feature-importance analysis for LightGBM.
 
-## Results
-
-| Model | Resampler | PR-AUC | F1 | Recall | Precision | ROC-AUC |
-|---|---|---:|---:|---:|---:|---:|
-| LightGBM | None | 0.570 | 0.559 | 0.493 | 0.645 | 0.911 |
-| LightGBM | ROS | **0.575** | **0.563** | **0.511** | 0.626 | 0.911 |
-| LightGBM | SMOTE | 0.573 | 0.558 | 0.506 | 0.625 | **0.912** |
-| Neural Network | None | 0.415 | 0.425 | 0.391 | 0.467 | 0.854 |
-| Neural Network | ROS | 0.415 | 0.426 | 0.381 | 0.489 | 0.854 |
-| Neural Network | SMOTE | 0.418 | 0.429 | 0.397 | 0.474 | 0.844 |
-| K-Means | None | 0.297 | 0.323 | 0.276 | 0.403 | 0.790 |
-| K-Means | ROS | 0.298 | 0.335 | 0.274 | 0.445 | 0.791 |
-| K-Means | SMOTE | 0.302 | 0.347 | 0.280 | 0.463 | 0.786 |
-
 ## Key Findings
 
 **RQ1 — Model choice mattered more than resampling.**  
 LightGBM achieved **0.570–0.575 PR-AUC**, compared with **0.415–0.418** for Neural Network and **0.297–0.302** for K-Means. ROS/SMOTE changed LightGBM PR-AUC by only **0.002–0.005**.
 
+<p align="center">
+  <img src="fig2_main_heatmaps.png" width="900">
+</p>
+
 **RQ2 — Resampling can change feature reliance.**  
 ROS preserved **8/10** top features (Jaccard = **0.818**), while SMOTE showed only **0.250** Top-10 Jaccard similarity with the original model.
 
+<p align="center">
+  <img src="fig4_shap_comparison.png" width="900">
+</p>
 
 ## Tech Stack
-
 
 Python · pandas · NumPy · scikit-learn · imbalanced-learn · LightGBM · PyTorch · SHAP · Matplotlib · Seaborn
 ## How to Run
