@@ -52,7 +52,9 @@ LightGBM achieved **0.570–0.575 PR-AUC**, compared with **0.415–0.418** for 
 **RQ2 — Resampling can change feature reliance.**  
 ROS preserved **8/10** top features (Jaccard = **0.818**), while SMOTE showed only **0.250** Top-10 Jaccard similarity with the original model.
 
+
 ## Tech Stack
+
 
 Python · pandas · NumPy · scikit-learn · imbalanced-learn · LightGBM · PyTorch · SHAP · Matplotlib · Seaborn
 ## How to Run
@@ -62,5 +64,7 @@ Fork the IEEE-CIS Fraud Detection competition data into your workspace Upload th
 
 Locally: install requirements.txt, download the IEEE-CIS dataset from Kaggle, update the DATA_PATH variable in Step 2, then run. Full pipeline runtime is approximately 2.5 hours on a single T4 (most of it spent on GCN training).
 ## References 
-**1. **  Baisholan, B., et al. (2025). A Systematic Review of Machine Learning in Credit Card Fraud Detection Under Original Class Imbalance. Computers, 14(10), 437.
-**2. ** Zhu, et al. (2024). Enhancing Credit Card Fraud Detection: A Neural Network and SMOTE Integrated Approach. arXiv:2402.17979.
+
+**1.**  Baisholan, B., et al. (2025). A Systematic Review of Machine Learning in Credit Card Fraud Detection Under Original Class Imbalance. Computers, 14(10), 437.
+
+**2.** Zhu, et al. (2024). Enhancing Credit Card Fraud Detection: A Neural Network and SMOTE Integrated Approach. arXiv:2402.17979.
